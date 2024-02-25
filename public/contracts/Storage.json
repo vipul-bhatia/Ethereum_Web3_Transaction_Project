@@ -3225,12 +3225,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0xC5A311f071c9f67Cc07609D334C66b7515c804a1",
-      "transactionHash": "0xc7464fb436bfb63e2d7b7cc84cb60da755f08ec96bc42123ea14512261985705"
+      "address": "0xF660D31Ecdd38d0749dC29D1bBC917831e1b643c",
+      "transactionHash": "0x8cc7838c368d2a8cc4a15008c468d2b34c7c4e1c603b47e7871406574ed719a2"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-01-19T18:10:11.732Z",
+  "updatedAt": "2024-02-25T11:40:29.615Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

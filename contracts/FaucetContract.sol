@@ -8,6 +8,8 @@ contract Faucet is Owned, Logger, IFaucet {
 
     uint public numOfFunders;
 
+      event FundsAdded(address indexed funder, uint amount);
+    event FundsWithdrawn(address indexed requester, uint amount);
 
     mapping(address => bool) private funders;
     mapping(uint => address) private lutFunders;
@@ -38,6 +40,8 @@ contract Faucet is Owned, Logger, IFaucet {
             funders[funder] = true;
             lutFunders[index] = funder;
         }
+
+          emit FundsAdded(funder, msg.value);
     }
 
     function test1() external onlyOwner {
@@ -47,9 +51,12 @@ contract Faucet is Owned, Logger, IFaucet {
     function test2() external onlyOwner {
         // Some managing stuff that only the owner can access
     }
+    
 
     function withdraw(uint withdrawAmount) override external limitWithdraw(withdrawAmount) {
         payable(msg.sender).transfer(withdrawAmount); 
+
+         emit FundsWithdrawn(msg.sender, withdrawAmount);
     }
 
     function getAllFunders() external view returns (address[] memory) {

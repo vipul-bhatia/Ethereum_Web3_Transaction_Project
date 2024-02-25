@@ -16,6 +16,7 @@ function App() {
   const [account, setAccount] = useState(null)
   const [balance,setBallance] = useState(null)
   const [shouldReload, reload] = useState(false)
+  const [transactions, setTransactions] = useState([]);
 
   const canConnectToContract = account && web3Api.contract
 
@@ -109,7 +110,52 @@ function App() {
     })
     reloadEffect()
   }
-
+  
+  useEffect(() => {
+    const { contract } = web3Api;
+  
+    const loadEvents = () => {
+      if (!contract) return;
+  
+      // Listening for FundsAdded events
+      contract.FundsAdded({
+        fromBlock: 0
+      }).on('data', event => {
+        setTransactions(prevTransactions => [...prevTransactions, {
+          type: 'Buy',
+          from: event.returnValues.funder,
+          amount: web3Api.web3.fromWei(event.returnValues.amount, 'ether')
+        }]);
+      })
+      .on('error', console.error);
+  
+      // Listening for FundsWithdrawn events
+      contract.FundsWithdrawn({
+        fromBlock: 0
+      }).on('data', event => {
+        setTransactions(prevTransactions => [...prevTransactions, {
+          type: 'Sell',
+          from: event.returnValues.requester,
+          amount: web3Api.web3.fromWei(event.returnValues.amount, 'ether')
+        }]);
+      })
+      .on('error', console.error);
+    };
+  
+    loadEvents();
+  
+    // Cleanup function
+    return () => {
+      if (contract) {
+        // Remove all event listeners for FundsAdded and FundsWithdrawn events
+        contract.FundsAdded().removeAllListeners();
+        contract.FundsWithdrawn().removeAllListeners();
+      }
+    };
+  }, [web3Api]); // This effect depends on the web3Api state
+  
+  
+  
   
   return (
     <>
@@ -158,10 +204,18 @@ function App() {
               Connect to Ganache
             </i>
           }
-          <button disabled={!canConnectToContract} onClick={addFunds} className = 'button is-link mr-2'>Donate 1 eth</button>
-          <button disabled={!canConnectToContract} onClick={withdraw} className = 'button is-primary is-dark'>Withdraw 0.1 eth</button>
-        </div>
+          <button disabled={!canConnectToContract} onClick={addFunds} className = 'button is-link mr-2'>Buy 1 eth</button>
+          <button disabled={!canConnectToContract} onClick={withdraw} className = 'button is-primary is-dark'>Sell 0.1 eth</button>
+          <div className = 'transactions'>
+        <h2>All Transactions</h2>
+        {transactions.map((tx, index) => (
+          <div key={index}>{tx.type} - From: {tx.from} - Amount: {tx.amount} ETH</div>
+        ))}
       </div>
+        </div>
+      
+      </div>
+    
     </>
   );
 }
